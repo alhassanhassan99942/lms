@@ -1,0 +1,23 @@
+{
+  "courseTitle": "Test course Title",
+  "courseDescription": "Test Course description",
+  "coursePrice": 50,
+  "courseDiscount": 10,
+  "courseContent": [
+    {
+      "chapterId": "ch01",
+      "chapterOrder": 1,
+      "chapterTitle": "test chapter title",
+      "chapterContent": [
+        {
+          "lectureId": "lec01",
+          "lectureTitle": "test Lecture ",
+          "lectureDuration": 20,
+          "lectureUrl": "https://example.com/lectures/lec01.mp4",
+          "isPreview": true,
+          "lectureOrder": 1
+        }
+      ]
+    }
+  ]
+}
