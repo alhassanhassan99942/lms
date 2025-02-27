@@ -1,7 +1,6 @@
 import User from "../models/User.js"
 import Stripe from "stripe"
 import { Purchase } from '../models/Purchase.js'
-import User from '../models/User.js'
 import normalizePath from 'normalize-path'
 
 // Get user Data
