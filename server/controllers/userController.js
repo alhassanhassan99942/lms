@@ -31,6 +31,7 @@ export const userEnrolledCourses = async (req, res) => {
     }
 }
 
+
 // purchase course
 export const purchaseCourse = async (req, res) => {
     try {
