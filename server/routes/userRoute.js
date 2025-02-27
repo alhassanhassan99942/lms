@@ -5,7 +5,7 @@ const userRouter = express.Router()
 
 userRouter.get('/data', getUserData)
 userRouter.get('/enrolled-courses', userEnrolledCourses)
-userRouter.get('/purchase', purchaseCourse)
+userRouter.post('/purchase', purchaseCourse)
 
 
 
