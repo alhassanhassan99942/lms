@@ -1,7 +1,8 @@
 import User from "../models/User.js"
 import Stripe from "stripe"
 import { Purchase } from '../models/Purchase.js'
-import normalizePath from 'normalize-path'
+import Course from "../models/Course.js"
+// import normalizePath from 'normalize-path'
 
 // Get user Data
 export const getUserData = async (req, res) => {
