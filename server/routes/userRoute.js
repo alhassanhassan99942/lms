@@ -7,9 +7,9 @@ userRouter.get('/data', getUserData)
 userRouter.get('/enrolled-courses', userEnrolledCourses)
 userRouter.post('/purchase', purchaseCourse)
 
-userRouter.post('update-course-progress', userCourseProgress)
-userRouter.post('get-course-progress', getUserCourseProgress)
-userRouter.post('add-rating', addUserRating)
+userRouter.post('/update-course-progress', userCourseProgress)
+userRouter.post('/get-course-progress', getUserCourseProgress)
+userRouter.post('/add-rating', addUserRating)
 
 
 
