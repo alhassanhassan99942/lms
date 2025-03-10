@@ -37,7 +37,6 @@ const MyEnrollments = () => {
         })
       )
       setProgressArray(tempProgressArray)
-      console.log(data);
     } catch (error) {
       toast.error(`from fetching ${error.message}`)
     }

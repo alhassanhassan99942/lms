@@ -63,10 +63,10 @@ export const AppContextProvider = (props) => {
       return 0;
     }
     let totalRating = 0;
-    course.courseRatings.forEach((rating) => {
+    course.courseRating.forEach((rating) => {
       totalRating += rating.rating;
     });
-    return Math.floor(totalRating / course.courseRatings.length);
+    return Math.floor(totalRating / course.courseRating.length);
   };
 
   // Function to calculate course Chapter Time

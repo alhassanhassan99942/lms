@@ -96,7 +96,7 @@ export const userCourseProgress = async (req, res) => {
     const progressData = await CourseProgress.findOne({ userId, courseId });
 
     if (progressData) {
-      if (condition) {
+      if (progressData.lectureCompleted.includes(lectureId)) {
         if (progressData.lectureCompleted.includes(lectureId)) {
           return res.json({
             success: true,
@@ -152,7 +152,7 @@ export const addUserRating = async (req, res) => {
 
         const user = await User.findById(userId)
 
-        if(!user || user.enrolledCourses.includes(courseId)){
+        if(!user || !user.enrolledCourses.includes(courseId)){
             return res.json({ success: false, message: "User has not purchased this course" })
         }
 
@@ -165,7 +165,7 @@ export const addUserRating = async (req, res) => {
         }
         await course.save()
 
-        return res.json({success: true,message:error.message})
+        return res.json({success: true,message:'Rating added'})
 
     } catch (error) {
     res.json({ success: false, message: error.message });
