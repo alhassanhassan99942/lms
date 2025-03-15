@@ -10,8 +10,11 @@ const Dashboard = () => {
 
   const fetchDashboardData = async () => {
     try {
-      const token = getToken()
+      const token = await getToken()
+      console.log(token);
+     
       const {data} = await axios.get(backendUrl + '/api/educator/dashboard', {headers: {Authorization: `Bearer ${token}`}} )
+
       if (data.success) {
         setDashboardData(data.dashboardData)
       }else {
