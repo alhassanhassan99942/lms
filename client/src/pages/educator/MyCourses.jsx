@@ -3,6 +3,8 @@ import { AppContext } from "../../context/AppContext";
 import Loading from "../../components/students/Loading";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { assets } from "../../assets/assets";
+import { Link } from "react-router-dom";
 
 const MyCourses = () => {
   const { currency, backendUrl, isEducator, getToken } = useContext(AppContext);
@@ -10,19 +12,37 @@ const MyCourses = () => {
 
   const fetchEducatorCourses = async () => {
     try {
-      const token = await getToken()
+      const token = await getToken();
       console.log(token);
 
-      const {data} = await axios.get(backendUrl + '/api/educator/courses', {headers: {Authorization: `Bearer ${token}`}} )
+      const { data } = await axios.get(backendUrl + "/api/educator/courses", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-      data.success && setCourses(data.courses)
-
+      data.success && setCourses(data.courses);
     } catch (error) {
-      toast.error(error.message)
+      toast.error(error.message);
     }
   };
 
-  
+  const handleDelete = async (id) => {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this course?"
+    );
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      await axios.delete(`${backendUrl}/api/educator/${id}`); // Replace with your API URL
+      // Update the courses state to remove the deleted course
+      setCourses(courses.filter((course) => course._id !== id));
+      alert("Course deleted successfully");
+    } catch (err) {
+      console.error(err);
+      alert("Error deleting course");
+    }
+  };
 
   useEffect(() => {
     if (isEducator) {
@@ -44,23 +64,62 @@ const MyCourses = () => {
                 <th className="px-4 py-3 font-semibold truncate">Earnings</th>
                 <th className="px-4 py-3 font-semibold truncate">Students</th>
                 <th className="px-4 py-3 font-semibold truncate">Published</th>
+                <th>Delete</th>
+                <th>Edit</th>
               </tr>
             </thead>
             <tbody className="text-sm text-gray-500">
               {courses.map((course) => (
                 <tr key={course._id} className="border border-gray-500/20">
                   <td className="md:px-4 pl-2 md:pl-4 py-3 flex items-center space-x-3 truncate">
-                    <img src={course.courseThumbnail} alt="course image" className="w-16" />
+                    <img
+                      src={course.courseThumbnail}
+                      alt="course image"
+                      className="w-16"
+                    />
                     <span className="truncate hidden md:block">
                       {course.courseTitle}
                     </span>
                   </td>
                   <td className="px-4 py-3 ">
-                    {currency} {Math.floor(course.enrolledStudents.length * (course.coursePrice - course.discount * course.coursePrice / 100 ))}
+                    {currency}{" "}
+                    {Math.floor(
+                      course.enrolledStudents.length *
+                        (course.coursePrice -
+                          (course.discount * course.coursePrice) / 100)
+                    )}
                   </td>
-                  <td  className="px-4 py-3"> {course.enrolledStudents.length}</td>
-                  <td  className="px-4 py-3">{new Date(course.createdAt).toLocaleDateString()}</td>
+                  <td className="px-4 py-3">
+                    {" "}
+                    {course.enrolledStudents.length}
+                  </td>
+                  <td className="px-4 py-3">
+                    {new Date(course.createdAt).toLocaleDateString()}
+                  </td>
+                  <td>
+                    <button onClick={() => handleDelete(course._id)}>
+                      <img
+                        className="w-7 h-7"
+                        src={assets.delete_icon}
+                        alt=""
+                      />
+                    </button>
 
+                    {/* {course._id} */}
+                  </td>
+                  <td>
+                    <Link
+                      to={"/educator/modify-course/" + course._id}
+                      onClick={() => scrollTo(0, 0)}
+                      className="border border-gray-500/30 pb-6 overflow-hidden rounded-lg"
+                    >
+                      <img
+                        className="w-7 h-7"
+                        src={assets.edit_icon}
+                        alt=""
+                      />
+                    </Link>
+                  </td>
                 </tr>
               ))}
             </tbody>

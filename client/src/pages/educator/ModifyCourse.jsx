@@ -5,12 +5,15 @@ import { assets } from "../../assets/assets";
 import { AppContext } from "../../context/AppContext";
 import { toast } from "react-toastify";
 import axios from "axios";
-const AddCourse = () => {
+import { useParams, useNavigate } from "react-router-dom"; // Import useParams and useNavigate
+import Loading from "../../components/students/Loading";
 
-  const {backendUrl, getToken} = useContext(AppContext)
-  // console.log(backendUrl);
-  // console.log(getToken());
-  
+const ModifyCourse = () => {
+  const { backendUrl, getToken } = useContext(AppContext);
+  const { id } = useParams(); // Get the course ID from the URL
+  console.log(id);
+
+  const navigate = useNavigate(); // Get the navigate function
 
   const quillRef = useRef(null);
   const editorRef = useRef(null);
@@ -22,6 +25,7 @@ const AddCourse = () => {
   const [chapters, setChapters] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
   const [currentChapterId, setCurrentChapterId] = useState(null);
+  const [loading, setLoading] = useState(true); // Add loading state
 
   const [lectureDetails, setLectureDetails] = useState({
     lectureTitle: "",
@@ -29,6 +33,54 @@ const AddCourse = () => {
     lectureUrl: "",
     isPreviewFree: false,
   });
+  
+
+  useEffect(() => {
+    if (!quillRef.current && editorRef.current) {
+      quillRef.current = new Quill(editorRef.current, {
+        theme: "snow",
+      });
+    }
+  }, []);
+
+  // Fetch course data on component mount
+  useEffect(() => {
+    const fetchCourseData = async () => {
+      setLoading(true); // Start loading
+      try {
+        // const token = await getToken();
+        const response = await axios.get(`${backendUrl}/api/course/${id}`);
+
+        if (response.data && response.data.courseData) {
+          const courseinfo = response.data.courseData;
+          setCourseTitle(courseinfo.courseTitle);
+          setCoursePrice(courseinfo.coursePrice);
+          setDiscount(courseinfo.discount || 0); // handle null discount
+          setImage(
+            courseinfo.courseThumbnail
+              ? `${backendUrl}/${courseinfo.thumbnail}`
+              : null
+          ); //handle null thumbnail
+          setChapters(courseinfo.courseContent || []);
+          if (quillRef.current) {
+            quillRef.current.root.innerHTML =
+              courseinfo.courseDescription || "";
+          }
+          // quillRef.current.root.innerHTML = ''
+        } else {
+          toast.error("Course not found");
+          navigate("/");
+        }
+      } catch (error) {
+        toast.error(error.message);
+        navigate("/");
+      } finally {
+        setLoading(false); // Stop loading
+      }
+    };
+
+    fetchCourseData();
+  }, [id, backendUrl, getToken, navigate]);
 
   const handleChapter = (action, chapterId) => {
     if (action === "add") {
@@ -64,12 +116,14 @@ const AddCourse = () => {
       setCurrentChapterId(chapterId);
       setShowPopup(true);
     } else if (action === "remove") {
-      chapters.map((chapter) => {
-        if ((chapter.chapterId = chapterId)) {
-          chapter.chapterContent.splice(lectureIndex, 1);
-        }
-        return chapter;
-      });
+      setChapters(
+        chapters.map((chapter) => {
+          if (chapter.chapterId === chapterId) {
+            chapter.chapterContent.splice(lectureIndex, 1);
+          }
+          return chapter;
+        })
+      );
     }
   };
 
@@ -79,14 +133,17 @@ const AddCourse = () => {
         if (chapter.chapterId === currentChapterId) {
           const newLecture = {
             ...lectureDetails,
-            lectureOrder: chapter.chapterContent.length > 0 ? chapter.chapterContent.slice(-1)[0].lectureOrder + 1 : 1,
-            lectureId: uniqid()
-          }
-          chapter.chapterContent.push(newLecture)
+            lectureOrder:
+              chapter.chapterContent.length > 0
+                ? chapter.chapterContent.slice(-1)[0].lectureOrder + 1
+                : 1,
+            lectureId: uniqid(),
+          };
+          chapter.chapterContent.push(newLecture);
         }
-        return chapter
+        return chapter;
       })
-    )
+    );
     setShowPopup(false);
     setLectureDetails({
       lectureTitle: "",
@@ -98,49 +155,41 @@ const AddCourse = () => {
 
   const handleSubmit = async (e) => {
     try {
-      e.preventDefault()
-      if (!image) {
-        toast.error("thumbnail not selected")
-      }
+      e.preventDefault();
 
       const courseData = {
-        courseTitle,
-        courseDescription: quillRef.current.root.innerHTML,
-        coursePrice: Number(coursePrice),
+        title: courseTitle,
+        description: quillRef.current ? quillRef.current.root.innerHTML : "", //handle if quillRef.current is null
+        price: Number(coursePrice),
         discount: Number(discount),
         courseContent: chapters,
-      }
-      const formData = new FormData()
-      formData.append('courseData', JSON.stringify(courseData))
-      formData.append('image', image)
+      };
 
-      const token = await getToken()
-      const {data} = await axios.post(backendUrl + '/api/educator/add-course', formData, {headers: {Authorization: `Bearer ${token}`}})
+      const formData = new FormData();
+      formData.append("courseData", JSON.stringify(courseData));
+      formData.append("image", image);
+
+      // const token = await getToken();
+      const {data} = await axios.put(
+        `${backendUrl}/api/educator/modify-course/${id}`, formData
+      );
 
       if (data.success) {
-        toast.success(data.message)
-        setCourseTitle('')
-        setCoursePrice(0)
-        setDiscount(0)
-        setImage(null)
-        setChapters([])
-        quillRef.current.root.innerHTML = ''
-
-      }else {
-        toast.error('from data' + ' ' + data.message)
+        toast.success(data.message);
+        navigate("/");
+      } else {
+        toast.error("Error here : " + data.message);
       }
     } catch (error) {
-      toast.error(error.message)
+      toast.error(error.message);
+      // console.log(error.message);
+      
     }
   };
 
-  useEffect(() => {
-    if (!quillRef.current && editorRef.current) {
-      quillRef.current = new Quill(editorRef.current, {
-        theme: "snow",
-      });
-    }
-  }, []);
+  if (loading) {
+    return <div><Loading /></div>; // Simple loading indicator
+  }
 
   return (
     <div className="h-screen overflow-scroll flex flex-col items-start justify-between md:p-8 md:pb-0 p-4 pt-8 pb-0">
@@ -159,7 +208,6 @@ const AddCourse = () => {
             type="text"
           />
         </div>
-        
         <div className="flex flex-col gap-1 ">
           <p>Course Description </p>
           <div className="" ref={editorRef}></div>
@@ -193,7 +241,13 @@ const AddCourse = () => {
                 hidden
               />
               <img
-                src={image ? URL.createObjectURL(image) : ""}
+                src={
+                  typeof image === "string"
+                    ? image
+                    : image
+                    ? URL.createObjectURL(image)
+                    : ""
+                }
                 className="max-h-10"
                 alt=""
               />
@@ -235,12 +289,11 @@ const AddCourse = () => {
                     onClick={() => handleChapter("toggle", chapter.chapterId)}
                   />
                   <span className="font-semibold">
-                     {chapterIndex + 1} {" "}
-                    {chapter.chapterTitle}
+                    {chapterIndex + 1} {chapter.chapterTitle}
                   </span>
                 </div>
                 <span className="text-gray-500">
-                  {chapter.chapterContent.length}{' '}Lectures
+                  {chapter.chapterContent.length} {' '} Lectures
                 </span>
                 <img
                   className="cursor-pointer"
@@ -264,7 +317,7 @@ const AddCourse = () => {
                           target="_blank"
                           className="text-blue-500 cursor-pointer"
                         >
-                          {lecture.lectureUrl}
+                          {lecture.lectureUrl }
                         </a>{" "}
                         - {lecture.isPreviewFree ? "Preview Free" : "Paid"}
                       </span>
@@ -312,10 +365,9 @@ const AddCourse = () => {
                     onChange={(e) =>
                       setLectureDetails({
                         ...lectureDetails,
-                        lectureTitle: e.target.value
+                        lectureTitle: e.target.value,
                       })
                     }
-                    
                   />
                 </div>
                 <div className="mb-2">
@@ -326,11 +378,10 @@ const AddCourse = () => {
                     onChange={(e) =>
                       setLectureDetails({
                         ...lectureDetails,
-                        lectureDuration: e.target.value
+                        lectureDuration: e.target.value,
                       })
                     }
                     className="mt-1 block border w-full rounded py-1 px-2"
-                    
                   />
                 </div>
                 <div className="mb-2">
@@ -341,7 +392,7 @@ const AddCourse = () => {
                     onChange={(e) =>
                       setLectureDetails({
                         ...lectureDetails,
-                        lectureUrl: e.target.value
+                        lectureUrl: e.target.value 
                       })
                     }
                     className="mt-1 block border w-full rounded py-1 px-2"
@@ -357,11 +408,10 @@ const AddCourse = () => {
                     onChange={(e) =>
                       setLectureDetails({
                         ...lectureDetails,
-                        isPreviewFree: e.target.checked
+                        isPreviewFree: e.target.checked,
                       })
                     }
                     className="mt-1 scale-125"
-                    
                   />
                 </div>
                 <button
@@ -390,11 +440,11 @@ const AddCourse = () => {
           className="bg-black text-white w-max py-2.5 px-8 rounded my-4"
         >
           {" "}
-          ADD
+          Save Changes
         </button>
       </form>
     </div>
   );
 };
 
-export default AddCourse;
+export default ModifyCourse;
