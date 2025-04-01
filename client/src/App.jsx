@@ -15,6 +15,11 @@ import Navbar from "./components/students/Navbar";
 import "quill/dist/quill.snow.css"
 import {ToastContainer} from 'react-toastify'
 import ModifyCourse from "./pages/educator/ModifyCourse";
+import Admin from "./pages/admin/Admin";
+import { AllCourses } from "./pages/admin/AllCourses";
+import AllUsers from "./pages/admin/AllUsers";
+import Dasboard from "./pages/admin/AdminDasboard";
+import AdminDasboard from "./pages/admin/AdminDasboard";
 const App = () => {
   
   const isEducatorRoute =  useMatch('/educator/*')
@@ -32,15 +37,23 @@ const App = () => {
         <Route path="/my-enrollments" element={<MyEnrollments />} />
         <Route path="/player/:courseId" element={<Player />} />
         <Route path="/loading" element={<Loading />} />
+
         <Route path="/educator" element={<Educator />}>
           <Route path="/educator" element={<Dashboard />} />
           <Route path="add-course" element={<AddCourse />} />
           <Route path="my-courses" element={<MyCourses />} />
           <Route path="students-enrolled" element={<StudentsEnrolled />} />
           <Route path="modify-course/:id" element={<ModifyCourse />} />
-
-
         </Route>
+
+        <Route path="/admin" element={<Admin />}>
+          <Route path="/admin" element={<AdminDasboard />} />
+          {/* <Route path="add-course" element={<AddCourse />} /> */}
+          <Route path="all-courses" element={<AllCourses />} />
+          <Route path="all-users" element={<AllUsers />} />
+          {/* <Route path="modify-course/:id" element={<Dasboard />} /> */}
+        </Route>
+
       </Routes>
     </div>
   );
