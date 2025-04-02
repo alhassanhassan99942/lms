@@ -28,9 +28,9 @@ const AllUsers = () => {
 
       data.success && setAllUsers(data.users);
       // console.log(users + data.success)
-      if (user.publicMetadata.role === "educator") {
-        setIsEducator(true)
-      }
+
+     
+      
     } catch (error) {
       toast.error('here'+ error.message);
     }
