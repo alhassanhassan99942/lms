@@ -15,8 +15,6 @@ import AntDesign from "@expo/vector-icons/AntDesign";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useNavigation } from "@react-navigation/native";
 import axios from 'axios'
-
-
 const RegisterScreen = () => {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
@@ -27,24 +25,22 @@ const RegisterScreen = () => {
     const user = {
       name: name,
       email: email,
-      password: password 
+      password: password
     }
 
-    axios.post("http://localhost:300/register", user).then((response) => {
+    axios.post("http://localhost:3000/register", user).then((response) => {
       console.log(response);
-      Alert.alert("Restration successfull")
+      Alert.alert("Registration successfull", "you have been registered successfully")
       setName("")
       setEmail("")
       setPassword("")
       
     }).catch((error) => {
-      Alert.alert("Registration failed")
-      console.log("error", error);
+      Alert.alert("registration failed", "An error occured during registration ")
+      console.log("error here" + error);
       
     })
-    
-
-  }
+  };
 
   return (
     <SafeAreaView
@@ -166,7 +162,7 @@ const RegisterScreen = () => {
         <View style={{ marginTop: 35 }} />
 
         <Pressable
-        onPress={handleRegister}
+          onPress={handleRegister}
           style={{
             width: 200,
             backgroundColor: "black",
@@ -178,7 +174,6 @@ const RegisterScreen = () => {
           }}
         >
           <Text
-          
             style={{
               textAlign: "center",
               color: "white",
